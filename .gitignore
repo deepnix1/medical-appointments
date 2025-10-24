@@ -118,5 +118,9 @@ functions/node_modules/
 functions/lib/
 functions/.runtimeconfig.json
 
+# Exclude functions from Next.js build
+functions/
+
 # Local development
+.vercel
 .vercel
