@@ -14,12 +14,6 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
-  // Exclude functions directory from build
-  experimental: {
-    outputFileTracingExcludes: {
-      '*': ['./functions/**/*'],
-    },
-  },
 };
 
 export default nextConfig;
