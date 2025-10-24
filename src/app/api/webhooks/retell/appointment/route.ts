@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
-import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber';
 import { addHours, isBefore, isAfter, format } from 'date-fns';
 import { db } from '@/lib/firebase';
 import { collection, doc, runTransaction, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
-
-const phoneUtil = PhoneNumberUtil.getInstance();
 
 interface AppointmentRequest {
   doctor_id: string;
@@ -17,15 +14,15 @@ interface AppointmentRequest {
 }
 
 const validatePhoneNumber = (phoneNumber: string): string => {
-  try {
-    const number = phoneUtil.parse(phoneNumber);
-    if (!phoneUtil.isValidNumber(number)) {
-      throw new Error('Invalid phone number');
-    }
-    return phoneUtil.format(number, PhoneNumberFormat.E164);
-  } catch (error) {
-    throw new Error('Invalid phone number format');
+  // Simple phone number validation and normalization
+  const cleaned = phoneNumber.replace(/\D/g, ''); // Remove non-digits
+  
+  if (cleaned.length < 10 || cleaned.length > 15) {
+    throw new Error('Invalid phone number length');
   }
+  
+  // Add + prefix if not present
+  return phoneNumber.startsWith('+') ? phoneNumber : `+${cleaned}`;
 };
 
 const validateDateTime = async (
