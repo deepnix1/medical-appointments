@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.role == 'admin';
+    }
+    
+    function isDoctor() {
+      return isAuthenticated() && request.auth.token.role == 'doctor';
+    }
+    
+    function isReceptionist() {
+      return isAuthenticated() && request.auth.token.role == 'receptionist';
+    }
+    
+    // Doctor collection rules
+    match /doctors/{doctorId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); // Geçici olarak tüm kullanıcılara izin ver
+    }
+    
+    // Availability rules collection
+    match /availability_rules/{ruleId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); // Geçici olarak tüm kullanıcılara izin ver
+    }
+    
+    // Availability exceptions collection
+    match /availability_exceptions/{exceptionId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); // Geçici olarak tüm kullanıcılara izin ver
+    }
+    
+    // Appointments collection
+    match /appointments/{appointmentId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); // Geçici olarak tüm kullanıcılara izin ver
+    }
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "agent_name": "Medical Appointment Bot",
+  "language": "Turkish",
+  "voice": "Turkish Female",
+  "conversation_flow": {
+    "greeting": {
+      "message": "Merhaba! Tıbbi randevu oluşturmak için arayan kişi misiniz?",
+      "next_step": "patient_info_collection"
+    },
+    "patient_info_collection": {
+      "steps": [
+        {
+          "question": "Adınızı ve soyadınızı söyler misiniz?",
+          "variable": "patient_name",
+          "validation": "text",
+          "required": true
+        },
+        {
+          "question": "Telefon numaranızı alabilir miyim?",
+          "variable": "patient_phone",
+          "validation": "phone",
+          "required": true
+        },
+        {
+          "question": "TC kimlik numaranızı söyler misiniz?",
+          "variable": "patient_tc",
+          "validation": "tc_number",
+          "required": true
+        }
+      ],
+      "next_step": "doctor_selection"
+    },
+    "doctor_selection": {
+      "question": "Hangi doktorla randevu almak istiyorsunuz?",
+      "options": [
+        "Dr. Ahmet Yılmaz - Kardiyoloji",
+        "Dr. Ayşe Demir - Nöroloji", 
+        "Dr. Mehmet Kaya - Ortopedi",
+        "Dr. Fatma Öz - Dermatoloji"
+      ],
+      "variable": "selected_doctor",
+      "next_step": "date_selection"
+    },
+    "date_selection": {
+      "question": "Hangi tarihte randevu almak istiyorsunuz? Bugünden itibaren 90 gün içinde bir tarih seçebilirsiniz.",
+      "variable": "appointment_date",
+      "validation": "date",
+      "next_step": "time_selection"
+    },
+    "time_selection": {
+      "question": "Hangi saatte uygun olursunuz? (Örnek: 14:30)",
+      "variable": "appointment_time",
+      "validation": "time",
+      "next_step": "confirmation"
+    },
+    "confirmation": {
+      "message": "Randevu bilgilerinizi onaylıyor musunuz?",
+      "summary": {
+        "patient_name": "Hasta: {patient_name}",
+        "patient_phone": "Telefon: {patient_phone}",
+        "patient_tc": "TC: {patient_tc}",
+        "doctor": "Doktor: {selected_doctor}",
+        "date": "Tarih: {appointment_date}",
+        "time": "Saat: {appointment_time}"
+      },
+      "options": ["Evet, onaylıyorum", "Hayır, değiştirmek istiyorum"],
+      "next_step": "final_response"
+    },
+    "final_response": {
+      "success": "Randevunuz başarıyla oluşturuldu! {appointment_date} tarihinde {appointment_time} saatinde {selected_doctor} ile randevunuz var. Teşekkürler!",
+      "error": "Üzgünüz, randevu oluşturulamadı. Lütfen daha sonra tekrar arayın veya web sitesinden randevu alın.",
+      "retry": "Randevu bilgilerinizi tekrar kontrol edelim."
+    }
+  },
+  "webhook_configuration": {
+    "appointment_booking_url": "https://your-domain.com/api/webhooks/retell/appointment",
+    "appointment_cancel_url": "https://your-domain.com/api/webhooks/retell/cancel",
+    "headers": {
+      "Content-Type": "application/json",
+      "x-retell-secret": "your_webhook_secret_here"
+    },
+    "payload_mapping": {
+      "doctor_id": "selected_doctor_id",
+      "caller_number": "patient_phone",
+      "patient_first_name": "patient_name_first",
+      "patient_last_name": "patient_name_last", 
+      "patient_tc_number": "patient_tc",
+      "requested_date": "appointment_date",
+      "requested_time": "appointment_time"
+    }
+  },
+  "validation_rules": {
+    "phone_number": {
+      "pattern": "^\\+90[0-9]{10}$",
+      "error_message": "Lütfen geçerli bir telefon numarası girin. (Örnek: +905551234567)"
+    },
+    "tc_number": {
+      "pattern": "^[0-9]{11}$",
+      "error_message": "TC kimlik numarası 11 haneli olmalıdır."
+    },
+    "date": {
+      "min_days_ahead": 1,
+      "max_days_ahead": 90,
+      "error_message": "Randevu tarihi bugünden en az 1 gün, en fazla 90 gün sonra olmalıdır."
+    },
+    "time": {
+      "format": "HH:mm",
+      "business_hours": "09:00-18:00",
+      "error_message": "Randevu saati 09:00-18:00 arasında olmalıdır."
+    }
+  },
+  "error_handling": {
+    "invalid_phone": "Telefon numarası formatı hatalı. Lütfen +90 ile başlayan 11 haneli numara girin.",
+    "invalid_tc": "TC kimlik numarası 11 haneli olmalıdır.",
+    "invalid_date": "Geçersiz tarih. Lütfen gelecek bir tarih seçin.",
+    "invalid_time": "Geçersiz saat. Lütfen 09:00-18:00 arasında bir saat seçin.",
+    "doctor_unavailable": "Seçilen doktor o tarihte müsait değil. Lütfen başka bir tarih seçin.",
+    "slot_taken": "Bu saat dilimi dolu. Lütfen başka bir saat seçin.",
+    "system_error": "Sistem hatası oluştu. Lütfen daha sonra tekrar deneyin."
+  },
+  "success_messages": {
+    "appointment_created": "Randevunuz başarıyla oluşturuldu!",
+    "appointment_confirmed": "Randevu onaylandı!",
+    "appointment_cancelled": "Randevu iptal edildi.",
+    "thank_you": "Teşekkürler! İyi günler dileriz."
+  }
+}
